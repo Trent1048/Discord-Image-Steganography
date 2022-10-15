@@ -42,13 +42,13 @@ def read_key_pair(public_key_file="public_key.pem", private_key_file="private_ke
 
     return (public_key, private_key)
 
-def encrypt(key, message: str):
+def encrypt(key, message: str) -> bytes:
     """Returns an encrypted value of the given `message`."""
     cipher_text = key.encrypt(message.encode("utf-8"), padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),
         algorithm=hashes.SHA256(), label=None))
     return cipher_text
 
-def decrypt(key, cipher_text: str):
+def decrypt(key, cipher_text: bytes):
     """Returns the decrypted value of the `cipher_text`."""
     message = key.decrypt(cipher_text, padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()), 
         algorithm=hashes.SHA256(), label=None))

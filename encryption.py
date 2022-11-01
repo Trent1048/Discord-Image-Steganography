@@ -8,6 +8,12 @@ def generate_key_pair(public_key_file="public_key.pem", private_key_file="privat
     """Generates and stores a public and private key pair 
     in the files `public_key_file` and `private_key_file`.
     """
+    
+    # use default key name for empty string as well as None values
+    if public_key_file == "":
+        public_key_file = "public_key.pem"
+    if private_key_file == "":
+        private_key_file = "private_key.pem"
 
     # generate keys
     private_key = rsa.generate_private_key(

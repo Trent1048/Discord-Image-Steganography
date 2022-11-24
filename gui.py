@@ -1,4 +1,6 @@
+import cv2
 import encryption
+import steganography
 import tkinter as tk
 from PIL import ImageTk, Image
 from tkinter import filedialog
@@ -32,12 +34,13 @@ class SteganographyUI(tk.Tk):
         self.columnconfigure(1, weight=1)
 
         # setup text box
-        text_box = tk.Text(self, width=25, height=15)
-        text_box.grid(row=0, column=1)
+        self.text_box = tk.Text(self, width=25, height=15)
+        self.text_box.grid(row=0, column=1)
 
         # setup image display
         self.image_holder = tk.Label(self, text="No File Loaded", foreground="red")
         self.image_holder.grid(row=0, column=0)
+        self.selected_image_path = None
 
         # setup load and export and read buttons
         self.button_frame = tk.Frame(self)
@@ -52,9 +55,11 @@ class SteganographyUI(tk.Tk):
             text="Read Message", command=self.read_message)
         self.read_message_button.grid(row=0, column=2)
 
-        # initialize the key file paths
+        # initialize the keys and file paths
         self.public_key_file = None
         self.private_key_file = None
+        self.public_key = None
+        self.private_key = None
 
     def generate_key_pair(self):
         """Generates a key pair for encryption/decryption."""
@@ -90,11 +95,31 @@ class SteganographyUI(tk.Tk):
 
     def export_message(self):
         """Encrypts and hides a message into an image."""
-        pass
+        if self.selected_image_path is None:
+            messagebox.showwarning(title="Warning", message="Must select an image first")
+        elif self.public_key is None:
+            messagebox.showwarning(title="Warning", message="Must set a key pair first")
+        else:
+            message = self.text_box.get("1.0", "end")
+            output_image_path = filedialog.asksaveasfilename(filetypes=[("PNG File", ".png")])
+            cv2.imwrite(output_image_path, steganography.encode_to_image(
+                cv2.imread(self.selected_image_path), message, self.public_key))
 
     def read_message(self):
         """Reads the encrypted message from the selected file."""
-        pass
+        if self.selected_image_path is None:
+            messagebox.showwarning(title="Warning", message="Must select an image first")
+        elif self.private_key is None:
+            messagebox.showwarning(title="Warning", message="Must set a key pair first")
+        else:
+            self.text_box.delete("1.0", "end")
+            try:
+                self.text_box.insert("1.0", steganography.decode_from_image(
+                    cv2.imread(self.selected_image_path), self.private_key))
+            except Exception as e:
+                self.text_box.insert("1.0", str(e))
+                self.text_box.tag_config("red", foreground="red")
+                self.text_box.tag_add("red", "1.0", "end")
 
 if __name__ == "__main__":
     app = SteganographyUI()

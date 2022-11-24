@@ -1,6 +1,8 @@
+import encryption
 import tkinter as tk
 from PIL import ImageTk, Image
 from tkinter import filedialog
+from tkinter import messagebox
 
 class SteganographyUI(tk.Tk):
     """The GUI for the image steganography program."""
@@ -17,8 +19,11 @@ class SteganographyUI(tk.Tk):
         # setup menu bar
         menu_bar = tk.Menu(self)
         key_menu = tk.Menu(menu_bar, tearoff=0)
-        key_menu.add_command(label="Generate Pair", command=self.placeholder)
-        key_menu.add_command(label="Load Pair", command=self.placeholder)
+        key_menu.add_command(label="Generate Pair", command=self.generate_key_pair)
+        key_menu.add_command(label="Load Public Key", command=self.load_public_key)
+        key_menu.add_command(label="Load Private Key", command=self.load_private_key)
+        key_menu.add_separator()
+        key_menu.add_command(label="Set Pair", command=self.set_key_pair)
         menu_bar.add_cascade(label="Keys", menu=key_menu)
         self.config(menu=menu_bar)
 
@@ -41,26 +46,55 @@ class SteganographyUI(tk.Tk):
             text="Load Image", command=self.set_image)
         self.load_image_button.grid(row=0, column=0)
         self.export_message_button = tk.Button(self.button_frame, 
-            text="Export Message", command=self.placeholder)
+            text="Export Message", command=self.export_message)
         self.export_message_button.grid(row=0, column=1)
         self.read_message_button = tk.Button(self.button_frame, 
-            text="Read Message", command=self.placeholder)
+            text="Read Message", command=self.read_message)
         self.read_message_button.grid(row=0, column=2)
 
-    def placeholder(self):
-        pass
+        # initialize the key file paths
+        self.public_key_file = None
+        self.private_key_file = None
+
+    def generate_key_pair(self):
+        """Generates a key pair for encryption/decryption."""
+        public_key_file = filedialog.asksaveasfilename(
+            initialfile="publicKey.pem", filetypes=[("PEM File", ".pem")])
+        private_key_file = filedialog.asksaveasfilename(
+            initialfile="privateKey.pem", filetypes=[("PEM File", ".pem")])
+        encryption.generate_key_pair(public_key_file, private_key_file)
+
+    def load_public_key(self):
+        """Loads the public key for encryption."""
+        self.public_key_file = filedialog.askopenfilename(filetypes=[("PEM File", ".pem")])
+
+    def load_private_key(self):
+        """Loads the private key for decryption."""
+        self.private_key_file = filedialog.askopenfilename(filetypes=[("PEM File", ".pem")])
+
+    def set_key_pair(self):
+        """Sets the key pair to be used for encryption/decryption."""
+        if self.public_key_file is None or self.private_key_file is None:
+            messagebox.showwarning(title="Warning", message="Must load public and private key first")
+        else:
+            self.public_key, self.private_key = encryption.read_key_pair(self.public_key_file, self.private_key_file)
 
     def set_image(self):
         """Sets the image for the selected image display box."""
-        image_path = filedialog.askopenfilename()
-        if image_path.lower().endswith(".png"):
-            image_source = Image.open(image_path)
-            image_source.thumbnail((200, 200))
-            self.image = ImageTk.PhotoImage(image_source)
-            self.image_holder.configure(image=self.image)
-            self.selected_image_path = image_path
-        else:
-            self.image_holder.configure(image="", text="Must select a .png image")
+        image_path = filedialog.askopenfilename(filetypes=[("PNG File", ".png")])
+        image_source = Image.open(image_path)
+        image_source.thumbnail((200, 200))
+        self.image = ImageTk.PhotoImage(image_source)
+        self.image_holder.configure(image=self.image)
+        self.selected_image_path = image_path
+
+    def export_message(self):
+        """Encrypts and hides a message into an image."""
+        pass
+
+    def read_message(self):
+        """Reads the encrypted message from the selected file."""
+        pass
 
 if __name__ == "__main__":
     app = SteganographyUI()

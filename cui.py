@@ -82,27 +82,28 @@ def decrypt_message_from_image():
     print(steganography.decode_from_image(cv2.imread("./" + picture_file_name), private_key))
 
 # run a simple menu in a loop
-print("Welcome to my image steganography program")
-while True:
-    print("\nPlease enter an option:" +
-        "\n\t1 Generate new key pair" +
-        "\n\t2 Load key pair" +
-        "\n\t3 Encrypt message to image" +
-        "\n\t4 Decrypt message from image" +
-        "\n\t5 Quit")
-    option = input()
-    # check the input
-    if option == "1":
-        generate_key_pair()
-    elif option == "2":
-        load_key_pair()
-    elif option == "3":
-        encrypt_message_to_image()
-    elif option == "4":
-        decrypt_message_from_image()
-    elif option == "5":
-        break
-    else:
-        print("Please enter a valid option")
+if __name__ == "__main__":
+    print("Welcome to my image steganography program")
+    while True:
+        print("\nPlease enter an option:" +
+            "\n\t1 Generate new key pair" +
+            "\n\t2 Load key pair" +
+            "\n\t3 Encrypt message to image" +
+            "\n\t4 Decrypt message from image" +
+            "\n\t5 Quit")
+        option = input()
+        # check the input
+        if option == "1":
+            generate_key_pair()
+        elif option == "2":
+            load_key_pair()
+        elif option == "3":
+            encrypt_message_to_image()
+        elif option == "4":
+            decrypt_message_from_image()
+        elif option == "5":
+            break
+        else:
+            print("Please enter a valid option")
 
-print("Goodbye")
+    print("Goodbye")

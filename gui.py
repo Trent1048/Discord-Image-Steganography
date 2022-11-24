@@ -5,6 +5,7 @@ import tkinter as tk
 from PIL import ImageTk, Image
 from tkinter import filedialog
 from tkinter import messagebox
+from google_images_search import GoogleImagesSearch
 
 class SteganographyUI(tk.Tk):
     """The GUI for the image steganography program."""
@@ -46,7 +47,7 @@ class SteganographyUI(tk.Tk):
         self.button_frame = tk.Frame(self)
         self.button_frame.grid(row=1, column=0)
         self.load_image_button = tk.Button(self.button_frame, 
-            text="Load Image", command=self.set_image)
+            text="Load Image", command=self.open_image)
         self.load_image_button.grid(row=0, column=0)
         self.export_message_button = tk.Button(self.button_frame, 
             text="Export Message", command=self.export_message)
@@ -54,6 +55,15 @@ class SteganographyUI(tk.Tk):
         self.read_message_button = tk.Button(self.button_frame, 
             text="Read Message", command=self.read_message)
         self.read_message_button.grid(row=0, column=2)
+
+        # setup image search box and button
+        self.image_searcher = GoogleImagesSearch(
+            'AIzaSyDzxFG8dId-XJfqvPZq8Xg5zSKxNZvqP9w', '36d5733898e2941f8')
+        self.search_button = tk.Button(self.button_frame, 
+            text="Search", command=self.search_image)
+        self.search_button.grid(row=1, column=0)
+        self.search_bar = tk.Entry(self.button_frame)
+        self.search_bar.grid(row=1, column=1, columnspan=2)
 
         # initialize the keys and file paths
         self.public_key_file = None
@@ -84,9 +94,15 @@ class SteganographyUI(tk.Tk):
         else:
             self.public_key, self.private_key = encryption.read_key_pair(self.public_key_file, self.private_key_file)
 
-    def set_image(self):
-        """Sets the image for the selected image display box."""
+    def open_image(self):
+        """Prompts the user to select a file and 
+        sets the specified image for the display box.
+        """
         image_path = filedialog.askopenfilename(filetypes=[("PNG File", ".png")])
+        self._set_image(image_path)
+
+    def _set_image(self, image_path):
+        """Sets the image for the selected image display box."""
         image_source = Image.open(image_path)
         image_source.thumbnail((200, 200))
         self.image = ImageTk.PhotoImage(image_source)
@@ -120,6 +136,20 @@ class SteganographyUI(tk.Tk):
                 self.text_box.insert("1.0", str(e))
                 self.text_box.tag_config("red", foreground="red")
                 self.text_box.tag_add("red", "1.0", "end")
+
+    def search_image(self):
+        """Searches, downloads, and sets an image from a google search."""
+        search_text = self.search_bar.get()
+        search_params = {
+            'q': search_text,
+            'num': 1,
+            'fileType': 'png',
+            'rights': 'cc_publicdomain|cc_attribute|cc_sharealike|cc_noncommercial|cc_nonderived',
+            'imgType': 'photo'
+        }
+        self.image_searcher.search(search_params=search_params, path_to_dir="./", 
+            custom_image_name="searched_image", cache_discovery=True)
+        self._set_image("./searched_image.PNG")
 
 if __name__ == "__main__":
     app = SteganographyUI()

@@ -1,0 +1,1 @@
+pip install windows-curses Google-Images-Search pillow opencv-python tkinter

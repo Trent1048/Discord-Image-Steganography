@@ -1,3 +1,4 @@
+import os
 import cv2
 import encryption
 import steganography
@@ -139,6 +140,8 @@ class SteganographyUI(tk.Tk):
 
     def search_image(self):
         """Searches, downloads, and sets an image from a google search."""
+        if os.path.exists("./searched_image.PNG"):
+            os.remove("./searched_image.PNG")
         search_text = self.search_bar.get()
         search_params = {
             'q': search_text,
